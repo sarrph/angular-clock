@@ -1,0 +1,40 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable, Subscription, interval } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-clock',
+  templateUrl: './clock.component.html',
+  styleUrls: ['./clock.component.css']
+})
+export class ClockComponent implements OnInit, OnDestroy {
+  time$: Observable<string>; // Observable emitting the formatted time
+  private subscription: Subscription; // Subscription to manage the observable
+
+  constructor() {}
+
+  ngOnInit(): void {
+    // Create an observable that emits every second
+    this.time$ = interval(1000).pipe(
+      map(() => this.getCurrentTime()) // Transform each emission to the current time
+    );
+
+    // Optional: Subscribe to the observable (if you need additional logic)
+    this.subscription = this.time$.subscribe(time => {
+      console.log('Current time:', time);
+    });
+  }
+
+  // Utility method to get the current time as a string
+  private getCurrentTime(): string {
+    const now = new Date();
+    return now.toLocaleTimeString(); // Format as hh:mm:ss
+  }
+
+  ngOnDestroy(): void {
+    // Unsubscribe from the observable to avoid memory leaks
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+}
